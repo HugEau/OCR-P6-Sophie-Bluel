@@ -18,7 +18,7 @@ async function fetchData() {
   // Function updating gallery with works via API
   function updateGallery(works) {
     let gallery = document.querySelector(".gallery");
-    let existingWorks = document.querySelectorAll("figure");
+    let existingWorks = document.querySelectorAll("figure:not(.presPicture)");
   
     // Convert existingWorks NodeList to an array
     let existingWorksArray = Array.from(existingWorks);
@@ -58,7 +58,7 @@ async function fetchData() {
     let hRBtn = document.getElementById("hAndRButton")
     
     allBtn.addEventListener("click", () => {
-        let delAll = document.querySelectorAll("figure")
+        let delAll = document.querySelectorAll("figure:not(.presPicture)")
         delAll.forEach((figure) => {
             figure.remove();
         });
@@ -66,7 +66,7 @@ async function fetchData() {
         }
     )
     objBtn.addEventListener("click", () => {
-        let delAll = document.querySelectorAll("figure");
+        let delAll = document.querySelectorAll("figure:not(.presPicture)");
         delAll.forEach((figure) => {
             figure.remove();
         });
@@ -97,7 +97,7 @@ async function fetchData() {
     });
     
     aptBtn.addEventListener("click", () => {
-        let delAll = document.querySelectorAll("figure");
+        let delAll = document.querySelectorAll("figure:not(.presPicture)");
         delAll.forEach((figure) => {
             figure.remove();
         });
@@ -127,7 +127,7 @@ async function fetchData() {
         }
     });
     hRBtn.addEventListener("click", () => {
-        let delAll = document.querySelectorAll("figure");
+        let delAll = document.querySelectorAll("figure:not(.presPicture)");
         delAll.forEach((figure) => {
             figure.remove();
         });

@@ -95,6 +95,17 @@ nav li {
 	font-size: 1.2em;
 }
 
+a {
+	text-decoration: none;
+	color: inherit;
+	font-family: 'Work Sans';
+	font-weight: 400;
+}
+
+a:hover {
+	font-weight: 700;
+}
+
 li:hover {
 	color: #B1663C;
 }
@@ -223,6 +234,12 @@ input[type="submit"]{
 	width: 180px;
 	text-align: center;
 	border-radius: 60px ;
+	cursor: pointer;
+}
+
+input[type="submit"]:hover {
+	background-color: #0E2F28;
+	color: white;
 }
 
 footer nav ul {
