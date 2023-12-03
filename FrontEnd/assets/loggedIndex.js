@@ -5,7 +5,6 @@ function createAdminPage(token) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Vérifier si la redirection a eu lieu
     if (window.localStorage.getItem("connected") === "true") {
         let token = window.localStorage.getItem("token");
         if (document.contains(document.getElementById("logInBtn"))) {
@@ -31,4 +30,3 @@ logOutBtn.addEventListener("click", () => {
     window.localStorage.removeItem("token")
     window.replace("index.html")
  })
- 
