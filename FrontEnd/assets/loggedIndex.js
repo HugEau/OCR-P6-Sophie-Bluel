@@ -1,7 +1,24 @@
+const body = document.querySelector("body")
+
 function createAdminPage(token) {
     let modifyBtn = document.createElement("button")
     modifyBtn.className = "connect, modifyBtn"
     modifyBtn.innerHTML = '<i class="fa-regular fa-pen-to-square"></i> modifier'
+
+    let modalCreate = document.createElement("div")
+    let modalHeaderCreate = document.createElement("div")
+    let modalBodyCreate = document.createElement("div")
+    modalBodyCreate.className = "modalBody"
+    modalHeaderCreate.className = "modalHeader"
+    modalCreate.className = "connect, modal"
+
+    modalCreate.appendChild(modalHeaderCreate)
+    modalCreate.appendChild(modalBodyCreate)
+    body.appendChild(modalCreate)
+
+    modifyBtn.addEventListener("click", () => {
+        
+    })
 }
 
 document.addEventListener("DOMContentLoaded", function() {
