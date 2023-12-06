@@ -1,5 +1,6 @@
 const body = document.querySelector("body")
-
+const connectionCookie = document.cookie
+console.log(connectionCookie)
 function createAdminPage(token) {
     let modifyBtn = document.createElement("button")
     modifyBtn.className = "connect, modifyBtn"
@@ -22,7 +23,7 @@ function createAdminPage(token) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (window.localStorage.getItem("connected") === "true") {
+    if (document.cookie.contains("token = ") === "true") {
         let token = window.localStorage.getItem("token");
         if (document.contains(document.getElementById("logInBtn"))) {
             document.getElementById("logInBtn").remove()

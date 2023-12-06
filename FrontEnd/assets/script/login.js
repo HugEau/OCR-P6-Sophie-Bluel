@@ -44,10 +44,7 @@ logInBtn.addEventListener("click", async (event) => {
             
             // Creating localStorage items to keep token and user ID to modify website
             // Vérifier comment marche les cookies, appronfondir le coup
-            document.cookie('token= ${logInResponse.token}; secure; path=/; max-age=86400')
-            window.localStorage.setItem("userId", logInBtn.userId)
-            
-            localStorage.setItem("connected", "true");
+            document.cookie = 'token= ${logInResponse.token}; secure; path=/; max-age=86400; userId= ${logInBtn.userId}; connected= true'
 
             window.location.replace("index.html")
         }
