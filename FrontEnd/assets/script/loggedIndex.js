@@ -33,7 +33,7 @@ function modifyBtnCreate() {
     //while using modify btn => show modal menu
     modifyBtn.addEventListener('click', () => {
         modalContentAdd();
-        modalShow()
+        // Add feature to show modal menu
     })
 }
 
