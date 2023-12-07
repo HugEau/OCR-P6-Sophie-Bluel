@@ -25,17 +25,16 @@ logInBtn.addEventListener("click", async (event) => {
         // Trying to find error in API response
         if (logInResponse.message === "user not found" || logInResponse.hasOwnProperty("error") ) {
             // If error => trying to find error log txt and removing it
-            if (document.contains(document.querySelector(".errorLogIn"))) {
-                document.querySelector(".errorLogIn").remove()
+            if (!document.contains(document.querySelector(".errorLogIn"))) {
+                let errorLogIn = document.createElement("p")
+                errorLogIn.className = "errorLogIn"
+                let errorTxt = "E-Mail ou mot de passe incorrecte"
+                errorLogIn.innerHTML = errorTxt
+
+                let logInContainer = document.querySelector(".logInContainer")
+                logInContainer.appendChild(errorLogIn)
             }
             // Creating error txt
-            let errorLogIn = document.createElement("p")
-            errorLogIn.className = "errorLogIn"
-            let errorTxt = "E-Mail ou mot de passe incorrecte"
-            errorLogIn.innerHTML = errorTxt
-
-            let logInContainer = document.querySelector(".logInContainer")
-            logInContainer.appendChild(errorLogIn)
         } else {
             // If no error => trying to find error log txt and removing it
             if (document.contains(document.querySelector(".errorLogIn"))) {
@@ -44,8 +43,8 @@ logInBtn.addEventListener("click", async (event) => {
             
             // Creating localStorage items to keep token and user ID to modify website
             // Vérifier comment marche les cookies, appronfondir le coup
-            document.cookie = 'token= ${logInResponse.token}; secure; path=/; max-age=86400; userId= ${logInBtn.userId}; connected= true'
-
+            document.cookie = 'connectionCookie =' + logInResponse.token + '; path=/; max-age=86400';
+            document.cookie = 'userId =' + logInResponse.userId + '; path=/; max-age=86400';
             window.location.replace("index.html")
         }
     } catch (error) {
