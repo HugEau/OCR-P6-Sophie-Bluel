@@ -1,7 +1,9 @@
-const body = document.querySelector("body")
+const modalContainer = document.querySelector(".modalContainer")
 const connectionCookie = document.cookie
 const portfolioBtn = document.querySelector(".portfolio__header")
 const portfolioH2 = document.querySelector(".portfolio__h2")
+const gallery = document.querySelector(".gallery")
+
 
 function getCookie(nom) {
     // Get cookie if it exist to create logged feature
@@ -34,6 +36,7 @@ function modifyBtnCreate() {
     modifyBtn.addEventListener('click', () => {
         modalContentAdd();
         // Add feature to show modal menu
+        modalContainer.style.display = "flex";
     })
 }
 
@@ -41,54 +44,96 @@ function modalCreate() {
     //create modal menu to manage works
     let modalCreate = document.createElement("div")
     let modalHeaderCreate = document.createElement("div")
+
+    let modalClose = document.createElement("button")
+    modalClose.className = "connect modalBtnClose"
+    modalClose.innerHTML = '<i class="fa-solid fa-xmark fa-xl"></i>'
+    modalHeaderCreate.appendChild(modalClose)
+
     let modalBodyCreate = document.createElement("div")
+
+    let modalBodyTxtCtn = document.createElement("div")
+    modalBodyTxtCtn.className = "connect modalBodyTxtCtn"
+    modalBodyCreate.appendChild(modalBodyTxtCtn)
+
+    let modalBodyGallery = document.createElement("div")
+    modalBodyGallery.className = "connect modalBodyGallery"
+    modalBodyCreate.appendChild(modalBodyGallery)
+
     let modalFooterCreate = document.createElement("div")
-    modalFooterCreate.className = "modalFooter"
-    modalBodyCreate.className = "modalBody"
+    
     modalHeaderCreate.className = "modalHeader"
+
+    modalBodyCreate.className = "modalBody"
+
+
+    modalFooterCreate.className = "modalFooter"
+
+
     modalCreate.className = "connect modal"
 
     modalCreate.appendChild(modalHeaderCreate)
     modalCreate.appendChild(modalBodyCreate)
     modalCreate.appendChild(modalFooterCreate)
-    body.appendChild(modalCreate)
+    modalContainer.appendChild(modalCreate)
+
+    //Close modal feature
+    modalContainer.addEventListener("click:not(.modal)", () => {
+        modalContainer.style.display = "none";
+    })
+
+    modalClose.addEventListener("click", () => {
+        modalContainer.style.display = "none";
+    })
 }
 
 function modalContentAdd() {
-    //add modal content
+    // Add modal content
 
-    let modalGallery = document.querySelector(".modalBody");
-    let modalExistingWorks = document.querySelectorAll("figure:not(.presPicture, .gallery)");
-    let modalWorks = document.querySelectorAll("figure:not(.presPicture, .modalBody")
+    let modalGallery = document.querySelector(".modalBodyGallery");
+    let modalExistingWorks = modalGallery.querySelectorAll("figure");
+    let modalWorks = gallery.querySelectorAll("figure");
+    let modalBodyTxtCtn = document.querySelector(".modalBodyTxtCtn")
+
+    if (!document.contains(document.querySelector(".modalBodyTxt"))) {
+        let modalBodyTxt = document.createElement("h2")
+        modalBodyTxt.className = "connect modalBodyTxt"
+        modalBodyTxt.innerHTML = "Galerie photo"
+
+        modalBodyTxtCtn.appendChild(modalBodyTxt)
+    }  
 
     // Convert existingWorks NodeList to an array
     let modalExistingWorksArray = Array.from(modalExistingWorks);
-    let modalWorksArray = Array.from(modalWorks)
+    let modalWorksArray = Array.from(modalWorks);
+
     for (let i = 0; i < modalWorksArray.length; i++) {
         let modalNewWork = modalWorksArray[i];
-        
+
         // Check if the work with the same title already exists
         let modalWorkAlreadyExists = modalExistingWorksArray.some(modalExistingWork => {
-            let modalExistingTitle = modalExistingWork.querySelector("img").alt;
-            return modalExistingTitle === modalNewWork.title;
+            let modalExistingAlt = modalExistingWork.querySelector("img").alt;
+            let modalNewAlt = modalNewWork.querySelector("img").alt;
+            return modalExistingAlt === modalNewAlt;
         });
 
         if (!modalWorkAlreadyExists) {
             // Create new figure element for each work and append to the gallery
             let modalNewFigure = document.createElement("figure");
             let modalNewImg = document.createElement("img");
-            modalNewImg.src = modalNewWork.childNodes[0].currentSrc;
-            modalNewImg.alt = modalNewWork.childNodes[0].alt;
+            modalNewImg.src = modalNewWork.querySelector("img").currentSrc;
+            modalNewImg.alt = modalNewWork.querySelector("img").alt;
 
             modalNewFigure.appendChild(modalNewImg);
 
             modalGallery.appendChild(modalNewFigure);
-            console.log("modal content added")
+            console.log("Modal content added");
         } else {
-            console.log("Modal : work with title already exists");
+            console.log("Modal: Work with title already exists");
         }
     }
 }
+
 
 document.addEventListener("DOMContentLoaded", function() {
     //While page is loaded, getting cookies
