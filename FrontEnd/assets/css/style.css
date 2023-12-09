@@ -112,6 +112,7 @@ body {
     justify-content: center;
     overflow: scroll;
     align-items: center;
+    padding-bottom: 60px;
 }
 .modalDeleteBtn {
     position: absolute;
