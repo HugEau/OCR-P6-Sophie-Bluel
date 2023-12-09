@@ -71,7 +71,6 @@ body {
     align-items: center;
     background-color: white;
     width: 45%;
-    height: 70%;
     margin: auto;
     border-radius: 10px;
 }
@@ -80,17 +79,18 @@ body {
     justify-content: flex-end;
     align-items: center;
     width: 90%;
-    height: 15%;
+    padding: 3% 0px 0 10px;
 }
 .modalHeader button {
     background-color: inherit;
     border: none;
+    cursor: pointer;
 }
 .modalBody {
     width:  90%;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 36px;
 }
 .modalBodyTxtCtn {
     text-align: center;
@@ -113,14 +113,102 @@ body {
     overflow: scroll;
     align-items: center;
 }
+.modalDeleteBtn {
+    position: absolute;
+    z-index: 1;
+    background-color: black;
+    border-radius: 2px;
+    width: 17px;
+    height: 17px;
+    color: white;
+    border: none;
+    margin-left: -20px;
+    margin-top:2px;
+    padding: 2px 5.2px 1.2px;
+    cursor: pointer;
+}
+.modalBodyAddDiv{
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    height: 70%;
+    align-items: center;
+}
+.modalImgAddDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #E8F1F6;
+    border-radius: 3px;
+    width: 77%;
+    height: 250px;
+    gap: 7px;
+}
+.modalImgAddIconCtn {
+    display: flex;
+    width: 70px;
+    height: 70px;
+    align-items: center;
+}
+.modalImgAddBtn {
+    background-color: #CBD6DC;
+    border-radius: 50px;
+    border: none;
+    width: 45%;
+    height: 36px;
+    color: #306685;
+    text-align: center;
+    font-family: Work Sans;
+    font-size: 14px;
+    font-weight: 500;
+}
+.modalImgAddIconCtn i {
+    font-size: 70px;
+    color: black;
+}
+.modalAddFormDiv {
+    width: 77%;
+}
+.modalAddFormDiv form {
+    display: flex;
+    flex-direction: column;
+
+}
+.modalAddFormDiv form label {
+    padding: 20px 0 10px 0;
+}
+.modalAddFormDiv form input, .modalAddFormDiv form select { 
+    height: 50px;
+    font-size: 14px;
+    border: none;
+    box-shadow: 0px 4px 14px 0px rgba(0, 0, 0, 0.09);
+    padding-left: 16px;
+    font-family: Work Sans;
+}
 .modalBody img {
 	width: 100%;
 }
 .modalFooter {
     margin-top: 5%;
     width: 69%;
-    height: 20%;
     border-top: 1px solid #B3B3B3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modalAddBtn {
+    width: 60%;
+    height: 36px;
+    margin: 38px 0 40px 0;
+    border-radius: 60px;
+    background-color: #1D6154;
+    color: white;
+    border: none;
+    font-weight:700;
+    font-family: Syne;
+    font-size: 14px;
+    cursor: pointer;
 }
 header {
 	display: flex;
