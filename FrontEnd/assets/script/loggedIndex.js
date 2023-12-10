@@ -119,9 +119,15 @@ function modalCreate() {
     modalBodyAddDiv.className = "connect modalBodyAddDiv"
     
         //create image add feature
-        // A VOIR MODIFIER BTN IMG ADD => INPUT IMAGE
         let modalImgAddDiv = document.createElement("div")
         modalImgAddDiv.className = "connect modalImgAddDiv"
+
+        let modalImgAddImg = document.createElement("img")
+        modalImgAddImg.src = "#"
+        modalImgAddImg.id = "modalImgWaitingAdd"
+        modalImgAddImg.alt = "modalImgAdded"
+        modalImgAddImg.className = "connect modalAddPageImg"
+        modalImgAddDiv.appendChild(modalImgAddImg)
 
         let modalImgAddIconCtn = document.createElement("div")
         modalImgAddIconCtn.className = "connect modalImgAddIconCtn"
@@ -132,10 +138,10 @@ function modalCreate() {
         modalImgAddIconCtn.appendChild(modalImgAddIcon)
         modalImgAddDiv.appendChild(modalImgAddIconCtn)
 
-        let modalImgAddBtn = document.createElement("button")
-        modalImgAddBtn.className = "connect modalImgAddBtn"
-        modalImgAddBtn.innerHTML = "+ Ajouter photo"
-        modalImgAddDiv.appendChild(modalImgAddBtn)
+        let modalImgAddBtnCtn = document.createElement("label")
+        modalImgAddBtnCtn.className = ("connect modalAddBtnCtn")
+        modalImgAddBtnCtn.innerHTML = '<input class="connect modalImgAddBtn" type="file" accept=".png, .jpg, .jpeg" size= 4000000> + Ajouter photo'
+        modalImgAddDiv.appendChild(modalImgAddBtnCtn)
 
         let modalImgAddTxt = document.createElement("p")
         modalImgAddTxt.className = "connect modalImgAddTxt"
@@ -204,6 +210,22 @@ function modalCreate() {
         modalBodyGallery.style.display = "grid"
         this.location.reload();
     })
+
+    //Manage image preview
+    let modalImgAddBtn = document.querySelector(".modalImgAddBtn")
+        modalImgAddBtn.addEventListener("change", (event) => {
+            modalImgAddBtnCtn.style.display = "none";
+            modalImgAddIconCtn.style.display = "none";
+            modalImgAddTxt.style.display = "none"
+        
+            let reader = new FileReader();
+            reader.onload = function(){
+                let outputImgAdd = document.querySelector('.modalAddPageImg');
+                outputImgAdd.src = reader.result;
+                outputImgAdd.id = "modalImgAdded";
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
 }
 
 function modalContentAdd(works) {
@@ -294,15 +316,90 @@ function modalAddInterface() {
     // Do not display gallery
     let modalGallery = document.querySelector(".modalBodyGallery");
     modalGallery.style.display = "none";
+
+    if (document.contains(document.getElementById("modalImgAddedBtn"))) {
+        let modalAddImg = document.querySelector(".modalAddPageImg")
+        modalAddImg.id = "modalImgWaitingAdd"
+    }
     
     let modalBodyTxt = document.querySelector(".modalBodyTxt")
     modalBodyTxt.innerHTML = "Ajout photo"
+
+    let modalFooterBtn = document.querySelector(".modalAddBtn")
+    modalFooterBtn.id = "modalAddNotOk"
+    modalFooterBtn.innerHTML = "Valider"
     
     let modalAdd = document.querySelector(".modalBodyAddDiv")
     modalAdd.style.display = "flex"
-    
+
+    modalAddBtnAction()
 }
 
+//Is form ok
+function modalAddBtnAction() {
+    let imageInput = document.querySelector(".modalAddPageImg");
+    let titleInput = document.getElementById("title");
+    let categoryInput = document.getElementById("categorySelector");
+    let modalAddWorkBtn = document.querySelector(".modalAddBtn");
+
+    // Vérifier que toutes les valeurs ne sont pas nulles
+    imageInput.addEventListener("load", checkForm);
+    titleInput.addEventListener("input", checkForm);
+    categoryInput.addEventListener("change", checkForm);
+
+    function checkForm() {
+        let image = imageInput.id;
+        let imageSrc = imageInput.src
+        let title = titleInput.value;
+        let category = categoryInput.value;
+        console.log(image)
+        // Vérifier que l'image, le titre et la catégorie sont définis avant de continuer
+        if (image !== "modalImgWaitingAdd" && title !== "" && category !== "premiereCategorie") {
+            let AddPayload = [
+                {
+                    "image": imageSrc,
+                    "title": title,
+                    "category": category
+                }
+            ];
+            isFormOk(AddPayload);
+        } else {
+            modalAddWorkBtn.id = "modalAddNotOk";
+        }
+    }
+}
+
+function isFormOk(AddPayload) {
+    let image = AddPayload[0].image;
+    let title = AddPayload[0].title;
+    let category = AddPayload[0].category;
+    // Vérifiez les conditions spécifiques avant de changer l'ID du bouton
+    if (image !== null && title !== null && category !== null && category !== "Sélectonnez une catégorie de travail") {
+        // Toutes les valeurs sont non nulles, afficher le payload dans la console
+        let modalAddWorkBtn = document.querySelector(".modalAddBtn");
+        modalAddWorkBtn.id = "modalImgAddedBtn";
+        // Prémice de commande d'envoie de travaux
+        modalAddWorkBtn.addEventListener("click", async () => {
+            try {
+                let tokenPayload = "Bearer " + token 
+                console.log(tokenPayload)
+                let addAction = await fetch("http://localhost:5678/api/works/", {
+                    method: "POST",
+                    headers: {accept: "application/json", Authorization: tokenPayload },
+                });
+                let addResponse = await addAction.json();
+                console.log(addResponse)
+            } catch(error) {
+                console.log("Error while adding work : " + error)
+            }
+        })
+    } else {
+        let modalAddWorkBtn = document.querySelector(".modalAddBtn");
+        modalAddWorkBtn.id = "modalAddNotOk";
+        // Au moins une valeur est nulle ou la catégorie est la première, afficher un message d'erreur dans la console
+        console.error("Au moins une valeur est nulle dans le payload ou la catégorie est la première.");
+    }
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     //While page is loaded, getting cookies

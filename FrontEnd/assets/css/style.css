@@ -146,23 +146,44 @@ body {
     height: 250px;
     gap: 7px;
 }
+#modalImgWaitingAdd {
+    display: none;
+}
+#modalImgAdded{
+    display: flex;
+    height: 100%;
+    object-fit: contain;
+}
+#modalAddNotOk{
+    background: #A7A7A7;
+    cursor: auto;
+}
 .modalImgAddIconCtn {
     display: flex;
     width: 70px;
     height: 70px;
     align-items: center;
 }
-.modalImgAddBtn {
+.modalAddBtnCtn {
+    display: flex;
+    flex-direction: column;
     background-color: #CBD6DC;
     border-radius: 50px;
-    border: none;
     width: 45%;
     height: 36px;
     color: #306685;
     text-align: center;
+    justify-content: center;
     font-family: Work Sans;
     font-size: 14px;
     font-weight: 500;
+    cursor: pointer;
+}
+select {
+    cursor: pointer;
+}
+.modalImgAddBtn {
+    display: none;
 }
 .modalImgAddIconCtn i {
     font-size: 70px;
