@@ -81,10 +81,19 @@ body {
     width: 90%;
     padding: 3% 0px 0 10px;
 }
+#modalAddPageHeader {
+    justify-content: space-between;
+}
 .modalHeader button {
     background-color: inherit;
     border: none;
     cursor: pointer;
+}
+.modalBtnReturn {
+    display: none;
+}
+#modalAddPageReturn {
+    display: flex;
 }
 .modalBody {
     width:  90%;
