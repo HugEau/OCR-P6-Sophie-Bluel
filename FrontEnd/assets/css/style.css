@@ -47,11 +47,28 @@ table {
 	border-spacing: 0;
 }
 /** end reset css**/
+.editionMode {
+    width: 100%;
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: #000;
+    color: white;
+    height: 60px;
+    z-index: 1000;
+}
 body {
-	max-width: 1140px;
-	margin:auto;
+	display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin:auto;
 	font-family: 'Work Sans' ;
 	font-size: 14px;
+}
+header, main, footer, .modalContainer {
+    max-width: 1140px;
 }
 .modalContainer {
     display: none;
@@ -243,6 +260,7 @@ select {
 }
 header {
 	display: flex;
+    width: 100%;
 	justify-content: space-between;
 	margin: 50px 0;
 }
@@ -463,10 +481,11 @@ input[type="submit"]:hover {
 	background-color: #0E2F28;
 	color: white;
 }
-
+footer {
+    width: 100%;
+}
 footer nav ul {
 	display: flex;
 	justify-content: flex-end;
 	margin: 2em
 }
-

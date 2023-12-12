@@ -469,6 +469,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let userId = getCookie("userId")
 
     if (token) {
+        let editionMode = document.querySelector(".editionMode")
+        editionMode.style.display = "flex"
         //create logout btn and logout btn features
         if (document.contains(document.getElementById("logInBtn"))) {
             document.getElementById("logInBtn").remove()
