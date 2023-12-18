@@ -68,7 +68,7 @@ function modalCreate() {
     let modalHeaderCreate = document.createElement("div")
     modalHeaderCreate.className = "modalHeader"
 
-    //create modal close feature
+    //create modal return feature
     let modalReturn = document.createElement("button")
     modalReturn.className = "connect modalBtnReturn"
     modalReturn.innerHTML = '<i class="fa-solid fa-chevron-left fa-l"></i>'
