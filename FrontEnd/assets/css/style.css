@@ -66,6 +66,7 @@ body {
     margin:auto;
 	font-family: 'Work Sans' ;
 	font-size: 14px;
+    width: 100%;
 }
 header, main, footer, .modalContainer {
     max-width: 1140px;
@@ -73,6 +74,7 @@ header, main, footer, .modalContainer {
 .modalContainer {
     display: none;
     width: 100%;
+    max-width: none;
     height: 100%;
     position: fixed;
     overflow: auto;
