@@ -184,8 +184,8 @@ function modalCreate() {
         modalAddForm.appendChild(modalAddFormCategorySelect)
         
         let modalAddFormCategoryOption = document.createElement("option")
-        modalAddFormCategoryOption.value = "Sélectonnez une catégorie de travail"
-        modalAddFormCategoryOption.innerHTML = ""
+        modalAddFormCategoryOption.value = "0"
+        modalAddFormCategoryOption.innerHTML = "Sélectionnez une catégorie de travail"
         modalAddFormCategorySelect.appendChild(modalAddFormCategoryOption)
         for (let i = 0; i < categoriesArray.length; i++) {
             let modalAddFormCategoryOption = document.createElement("option")
@@ -213,7 +213,12 @@ function modalCreate() {
         modalContainer.style.display = "none";
         modalBodyAddDiv.style.display = "none"
         modalBodyGallery.style.display = "grid"
-        this.location.reload();
+        updatingGallery()
+        resetInputValues()
+
+        let modalAddNotOk = document.getElementById("modalAddNotOk")
+        modalAddNotOk.style.display = "none"
+        window.location.reload();
     })
 
     //Manage image preview
@@ -244,14 +249,28 @@ function modalContentAdd(works) {
         modalAddBtn.innerHTML = "Ajouter une photo"
         modalAddBtn.id = "modalIntialAdd"
         modalFooter.appendChild(modalAddBtn)
+
+        let modalAddNotOk = document.createElement("button")
+        modalAddNotOk.className = "connect modalAddBtn"
+        modalAddNotOk.innerHTML = "Valider"
+        modalAddNotOk.id = "modalAddNotOk"
+        modalFooter.appendChild(modalAddNotOk)
+
+        let modalImgAddedBtn = document.createElement("button")
+        modalImgAddedBtn.className = "connect modalAddBtn"
+        modalImgAddedBtn.innerHTML = "Valider"
+        modalImgAddedBtn.id = "modalImgAddedBtn"
+        modalFooter.appendChild(modalImgAddedBtn)
+
+
     } else {
         let modalAddBtn = document.querySelector(".modalAddBtn")
         modalAddBtn.innerHTML = "Ajouter une photo"
         modalAddBtn.id = "modalIntialAdd"
     }
     //Add new work feature
-    let modalAddBtn = document.querySelector(".modalAddBtn")
-    modalAddBtn.addEventListener("click", () => {
+    let modalAddBtnId = document.getElementById("modalIntialAdd")
+    modalAddBtnId.addEventListener("click", () => {
         modalAddInterface(token)
     })
 
@@ -294,7 +313,6 @@ function modalContentAdd(works) {
                 try {
                     let deleteId = modalDeleteBtn.id
                     let deletePayload = "Bearer " + token 
-                    console.log(deletePayload)
                     let deleteAction = await fetch("http://localhost:5678/api/works/"+ deleteId, {
                         method: "DELETE",
                         headers: {accept: "*/*", Authorization: deletePayload },
@@ -303,6 +321,9 @@ function modalContentAdd(works) {
                     if (deleteAction.ok) {
                         let deleteFigure = document.getElementById(deleteId)
                         deleteFigure.remove()
+
+                        updatingGallery()
+
                         // Vérifier si la réponse n'est pas vide
                         let deleteResponseText = await deleteAction.text();
                         if (deleteResponseText.trim() !== '') {
@@ -324,6 +345,8 @@ function modalContentAdd(works) {
             console.log("Modal: Work with title already exists");
         }
     }
+    // Supprimer les doublons dans la modalBodyGallery
+    removeDuplicateWorksInGallery();
 }
 
 function modalAddInterface(token) {
@@ -338,9 +361,11 @@ function modalAddInterface(token) {
     let modalBodyTxt = document.querySelector(".modalBodyTxt")
     modalBodyTxt.innerHTML = "Ajout photo"
 
-    let modalFooterBtn = document.querySelector(".modalAddBtn")
-    modalFooterBtn.id = "modalAddNotOk"
-    modalFooterBtn.innerHTML = "Valider"
+    let modalFooterBtnInitial = document.getElementById("modalIntialAdd")
+    modalFooterBtnInitial.style.display = "none"
+
+    let modalFooterBtnNotOk = document.getElementById("modalAddNotOk")
+    modalFooterBtnNotOk.style.display = "block"
     
     let modalAdd = document.querySelector(".modalBodyAddDiv")
     modalAdd.style.display = "flex"
@@ -355,15 +380,13 @@ function modalAddInterface(token) {
 
         modalBodyTxt.innerHTML = "Galerie photo";
 
-        modalFooterBtn.innerHTML = "Ajouter une photo";
-
         modalAdd.style.display = "none"
 
         modalAddPageReturn.id = ""
         modalHeader.id = ""
 
-        let modalAddBtn = document.querySelector(".modalAddBtn")
-        modalAddBtn.id = "modalIntialAdd"
+        modalFooterBtnInitial.style.display = "block"
+        modalFooterBtnNotOk.style.display = "none"
 
         if (document.contains(document.getElementById("modalImgAdded"))) {
             let modalAddImg = document.querySelector(".modalAddPageImg")
@@ -376,7 +399,7 @@ function modalAddInterface(token) {
             modalAddBtnCtn.style.display = "flex"
             modalImgAddTxt.style.display = "flex"
         }
-
+        resetFormState()
     })
 }
 
@@ -386,7 +409,6 @@ function modalAddBtnAction(token) {
     let imageInputSaver = document.querySelector(".modalImgAddBtn")
     let titleInput = document.getElementById("title");
     let categoryInput = document.getElementById("categorySelector");
-    let modalAddWorkBtn = document.querySelector(".modalAddBtn");
 
     // Vérifier que toutes les valeurs ne sont pas nulles
     imageInput.addEventListener("load", checkForm);
@@ -394,83 +416,325 @@ function modalAddBtnAction(token) {
     categoryInput.addEventListener("change", checkForm);
 
     function checkForm() {
-        let image = imageInput.id;
-        let imageSrc = imageInputSaver.files[0];
-        let title = titleInput.value;
-        let category = categoryInput.value;
-        console.log(category)
+        // Si le formulaire a déjà été vérifié, ne pas exécuter cette fonction
+        isFormChecked = false;
+        
+        let image = null
+        let imageSrc = null
+        let title = null
+        let category = null
+
+        image = imageInput.id;
+        imageSrc = imageInputSaver.files[0];
+        title = titleInput.value;
+        category = categoryInput.value;
+    
         // Vérifier que l'image, le titre et la catégorie sont définis avant de continuer
-        if (image !== "modalImgWaitingAdd" && title !== "" && category !== "") {
-            let AddPayload = [
-                {
+        if (image !== "modalImgWaitingAdd" && title !== "" && category !== "0" && !isSubmitting) {
+            let AddPayload = {
                     "image": imageSrc,
                     "title": title,
                     "category": category
-                }
-            ];
+                };
+            isFormChecked = true; // Marquer le formulaire comme vérifié
             isFormOk(AddPayload, token);
+            console.log(AddPayload)
+
+            let modalAddBtnIsReady = document.getElementById("modalImgAddedBtn")
+            modalAddBtnIsReady.style.display = "block"
+
+            let modalAddWorkBtnNotOk = document.getElementById("modalAddNotOk")
+            modalAddWorkBtnNotOk.style.display = "none";
         } else {
-            modalAddWorkBtn.id = "modalAddNotOk";
+            let modalAddWorkBtnNotOk = document.getElementById("modalAddNotOk")
+            modalAddWorkBtnNotOk.style.display = "block";
+
+            let modalAddBtnIsReady = document.getElementById("modalImgAddedBtn")
+            modalAddBtnIsReady.style.display = "none"
+
+            isFormChecked = false;
         }
     }
 }
 
 let isSubmitting = false; // Variable pour suivre l'état de soumission
+let isFormChecked = false; // Variable pour suivre si le formulaire a déjà été vérifié
 
 function isFormOk(AddPayload, token) {
-    let image = AddPayload[0].image;
-    let title = AddPayload[0].title;
-    let category = AddPayload[0].category;
+    let titleInput = document.getElementById("title");
+    let categoryInput = document.getElementById("categorySelector");
+    
+    // Vérifier que toutes les valeurs ne sont pas nulles
+    titleInput.addEventListener("change", modalAddBtnAction(token));
+    categoryInput.addEventListener("change", modalAddBtnAction(token));
+
+    let image = AddPayload.image;
+    let title = AddPayload.title;
+    let category = AddPayload.category;
+    console.log(AddPayload)
     
     // Vérifiez les conditions spécifiques avant de changer l'ID du bouton
-    if (image !== null && title !== null && category !== null && category !== "Sélectonnez une catégorie de travail" && !isSubmitting) {
+    if (image !== "" && title !== "" && category !== "0" && !isSubmitting) {
+        
         // Toutes les valeurs sont non nulles et aucune soumission en cours, afficher le payload dans la console
-        let modalAddWorkBtn = document.querySelector(".modalAddBtn");
-        modalAddWorkBtn.id = "modalImgAddedBtn";
+
+        let modalAddWorkBtnNotOk = document.getElementById("modalAddNotOk")
+        modalAddWorkBtnNotOk.style.display = "none";
+
+        let modalAddBtnIsReady = document.getElementById("modalImgAddedBtn")
+        modalAddBtnIsReady.style.display = "block"
 
         // Prémice de commande d'envoi de travaux
-        modalAddWorkBtn.addEventListener("click", async () => {
+        modalAddBtnIsReady.addEventListener("click", () => {
             try {
-                isSubmitting = true; // Définir l'état de soumission à true
+                modalAddBtnIsReady.disabled = true
+                    
+                    isSubmitting = true; // Définir l'état de soumission à true
 
-                let tokenPayload = "Bearer " + token;
-                console.log(tokenPayload);
+                    let tokenPayload = "Bearer " + token;
+                    console.log(tokenPayload);
 
-                let formData = new FormData();
-                formData.append("image", image); // Ajouter l'image à FormData
-                formData.append("title", title);
-                formData.append("category", category);
+                    let formData = new FormData();
+                    formData.append("image", image); // Ajouter l'image à FormData
+                    formData.append("title", title);
+                    formData.append("category", category);
 
-                let addAction = await fetch("http://localhost:5678/api/works", {
-                    method: "POST",
-                    headers: { Authorization: tokenPayload },
-                    body: formData,
-                });
-                let addResponse = await addAction.json();
-                console.log(addResponse);
+                    // Check if an image with a similar figcaption already exists
+                    let existingWorks = gallery.querySelectorAll("figure");
 
+                    // Convert existingWorks NodeList to an array
+                    let existingWorksArray = Array.from(existingWorks);
+
+                    // Check if the work with the same title already exists
+                    let workAlreadyExists = existingWorksArray.some(existingWork => {
+                        let existingTitle = existingWork.querySelector("img").alt;
+                        console.log(existingTitle)
+                        console.log(formData.title)
+                        return existingTitle === title;
+                    });
+                        if (!workAlreadyExists) {
+                            addNewWork(tokenPayload, formData, title)
+                        }
+                    formData = new FormData()
+
+                modalAddBtnIsReady.disabled = false
+                resetFormState()
             } catch (error) {
                 console.log("Error while adding work: ", error);
+                resetFormState()
             } finally {
-                isSubmitting = false; // Réinitialiser l'état de soumission à false
-                window.location.reload()
+                resetInputValues()
+                resetFormState()
+                let delAll = gallery.querySelectorAll("figure");
+                delAll.forEach((figure) => {
+                    figure.remove();
+                });
+                updatingGallery()
             }
         });
     } else {
-        let modalAddWorkBtn = document.querySelector(".modalAddBtn");
-        modalAddWorkBtn.id = "modalAddNotOk";
+        console.log(isSubmitting)
+        let modalAddBtnIsReady = document.getElementById("modalImgAddedBtn")
+        modalAddBtnIsReady.style.display = "none"
+
+        let modalAddWorkBtnNotOk = document.getElementById("modalAddNotOk")
+        modalAddWorkBtnNotOk.style.display = "block";
+
+        resetFormState()
     }
 }
 
+async function addNewWork(tokenPayload, formData) {
+    try {
+        let addAction = fetch("http://localhost:5678/api/works", {
+            method: "POST",
+            headers: { Authorization: tokenPayload },
+            body: formData,
+        });
+        updatingGallery()
+    } catch {
+        console.log(error)
+    }
+}
+
+function resetFormState() {
+    isFormChecked = false;
+    isSubmitting = false;
+}
+
+function resetInputValues() {
+    let modalAddFormTitleInput = document.getElementById("title");
+    let modalAddFormCategorySelect = document.getElementById("categorySelector");
+    let modalImgAddBtn = document.querySelector(".modalImgAddBtn");
+    
+    let modalBtnAdd = document.getElementById("modalIntialAdd")
+    modalBtnAdd.style.display = "block"
+    
+    let modalAddBtnIsReady = document.getElementById("modalImgAddedBtn")
+    modalAddBtnIsReady.style.display = "none"
+
+    // Reset input values
+    modalAddFormTitleInput.value = "";
+    modalAddFormCategorySelect.value = "0";
+    modalImgAddBtn.value = ""; // Reset the file input
+
+    // Reset the image preview
+    let outputImgAdd = document.querySelector('.modalAddPageImg');
+    outputImgAdd.src = "#";
+    outputImgAdd.alt = "";
+    outputImgAdd.id = "ImgWaitingAdd";
+
+    let modalImgAddIconCtn = document.querySelector(".modalImgAddIconCtn")
+    let modalAddBtnCtn = document.querySelector(".modalAddBtnCtn")
+    let modalImgAddTxt = document.querySelector(".modalImgAddTxt")
+    modalImgAddIconCtn.style.display = "flex"
+    modalAddBtnCtn.style.display = "flex"
+    modalImgAddTxt.style.display = "flex"
+
+    let modalBodyAddDiv = document.querySelector(".modalBodyAddDiv")
+    let modalBodyGallery = document.querySelector(".modalBodyGallery")
+
+    modalBodyAddDiv.style.display = "none"
+    modalBodyGallery.style.display = "grid"
+}
+
+async function removeDuplicateWorks(updatedWorks) {
+    // Créer un tableau pour stocker les œuvres en double
+    let duplicateWorks = [];
+
+    // Créer un ensemble pour suivre les titres des œuvres
+    let titleSet = new Set();
+
+    // Identifier les œuvres en double
+    for (let i = 0; i < updatedWorks.length; i++) {
+        let currentWork = updatedWorks[i];
+
+        // Si le titre est déjà dans l'ensemble, c'est un doublon
+        if (titleSet.has(currentWork.title)) {
+            duplicateWorks.push(currentWork);
+        } else {
+            titleSet.add(currentWork.title);
+        }
+    }
+
+    // Supprimer les œuvres en double de l'API
+    for (let i = 0; i < duplicateWorks.length; i++) {
+        let duplicateWork = duplicateWorks[i];
+
+        try {
+            // Faire appel à fetch DELETE pour supprimer l'œuvre
+            let token = getCookie("connectionCookie");
+            let deleteAction = await fetch("http://localhost:5678/api/works/" + duplicateWork.id, {
+                method: "DELETE",
+                headers: {
+                    accept: "*/*",
+                    Authorization: "Bearer " + token,
+                },
+            });
+
+            if (deleteAction.ok) {
+                console.log("Duplicate work deleted:", duplicateWork.title);
+            } else {
+                console.log("Error deleting duplicate work:", deleteAction.status, deleteAction.statusText);
+            }
+            updatingGallery()
+        } catch (error) {
+            console.log("Error during duplicate work deletion:", error);
+        }
+    }
+}
+
+async function removeDuplicateWorksInGallery() {
+    try {
+        // Récupérer toutes les figures existantes dans la modalBodyGallery
+        let existingFigures = document.querySelectorAll(".modalBodyGallery figure");
+
+        // Créer un tableau pour stocker les figures en double
+        let duplicateFigures = [];
+
+        // Créer un ensemble pour suivre les alt des images
+        let altSet = new Set();
+
+        // Identifier les figures en double
+        existingFigures.forEach(existingFigure => {
+            let alt = existingFigure.querySelector("img").alt;
+
+            // Si l'alt est déjà dans l'ensemble, c'est une figure en double
+            if (altSet.has(alt)) {
+                duplicateFigures.push(existingFigure);
+            } else {
+                altSet.add(alt);
+            }
+        });
+
+        // Supprimer les figures en double de la modalBodyGallery
+        duplicateFigures.forEach(duplicateFigure => {
+            duplicateFigure.remove();
+        });
+
+        console.log("Duplicate figures removed in modalBodyGallery");
+    } catch (error) {
+        console.log("Error removing duplicate figures in modalBodyGallery:", error);
+    }
+}
+
+async function updatingGallery() {
+    try {
+        // Mettre à jour la galerie
+        let delAll = gallery.querySelectorAll("figure");
+        delAll.forEach((figure) => {
+            figure.remove();
+        });
+
+        let updatedWorksResponse = await fetch("http://localhost:5678/api/works");
+        let updatedWorks = await updatedWorksResponse.json();
+
+        // Supprimer les œuvres en double
+        await removeDuplicateWorks(updatedWorks);
+
+        // Mettre à jour la galerie après la suppression des doublons
+        for (let i = 0; i < updatedWorks.length; i++) {
+            let currentUpdatedWork = updatedWorks[i];
+
+            let addFigure = document.createElement("figure");
+            let addImg = document.createElement("img");
+
+            addImg.src = currentUpdatedWork.imageUrl;
+            addImg.alt = currentUpdatedWork.title;
+
+            let figcaptionTxt = document.createElement("figcaption");
+            figcaptionTxt.innerText = currentUpdatedWork.title;
+
+            addFigure.appendChild(addImg);
+            addFigure.appendChild(figcaptionTxt);
+            gallery.appendChild(addFigure);
+        }
+
+        let currentWorks = Array.from(gallery.querySelectorAll("figure"));
+
+        if (updatedWorks.length < currentWorks.length) {
+            updatingGallery();
+            console.log("Error while updating gallery, retrying");
+        }
+
+        loggedFetchData();
+    } catch {
+        console.log("Error fetching data while updating gallery");
+    }
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     //While page is loaded, getting cookies
     let token = getCookie("connectionCookie");
+    //Feature that has to be added later
     let userId = getCookie("userId")
 
     if (token) {
         let editionMode = document.querySelector(".editionMode")
         editionMode.style.display = "flex"
+
+        let filterBar = document.querySelector(".filterBar")
+        filterBar.style.display = "none"
         //create logout btn and logout btn features
         if (document.contains(document.getElementById("logInBtn"))) {
             document.getElementById("logInBtn").remove()
