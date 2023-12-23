@@ -207,40 +207,6 @@ function modalCreate() {
     modalCreate.appendChild(modalFooterCreate)
     modalContainer.appendChild(modalCreate)
 
-    //Close modal function feature + Refresh page to show modifications
-    modalClose.addEventListener("click", () => {
-        
-        modalContainer.style.display = "none";
-        modalBodyAddDiv.style.display = "none"
-        modalBodyGallery.style.display = "grid"
-        updatingGallery()
-        resetInputValues()
-
-        let modalAddNotOk = document.getElementById("modalAddNotOk")
-        modalAddNotOk.style.display = "none"
-        window.location.reload();
-    })
-
-    //Manage image preview
-    let modalImgAddBtn = document.querySelector(".modalImgAddBtn")
-        modalImgAddBtn.addEventListener("change", (event) => {
-            modalImgAddBtnCtn.style.display = "none";
-            modalImgAddIconCtn.style.display = "none";
-            modalImgAddTxt.style.display = "none"
-        
-            let reader = new FileReader();
-            reader.onload = function(){
-                let outputImgAdd = document.querySelector('.modalAddPageImg');
-                outputImgAdd.src = reader.result;
-                outputImgAdd.id = "modalImgAdded";
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        });
-}
-
-function modalContentAdd(works) {
-    // Add modal content
-    let token = getCookie("connectionCookie");
     //create modalAddBtn
     if (!document.contains(document.querySelector(".modalAddBtn"))) {
         let modalFooter = document.querySelector(".modalFooter")
@@ -268,10 +234,46 @@ function modalContentAdd(works) {
         modalAddBtn.innerHTML = "Ajouter une photo"
         modalAddBtn.id = "modalIntialAdd"
     }
+
+    //Close modal function feature + Refresh page to show modifications
+    modalClose.addEventListener("click", () => {
+        
+        modalContainer.style.display = "none";
+        modalBodyAddDiv.style.display = "none"
+        modalBodyGallery.style.display = "grid"
+        updatingGallery()
+        resetInputValues()
+
+        let modalAddNotOk = document.getElementById("modalAddNotOk")
+        modalAddNotOk.style.display = "none"
+    })
+
+    //Manage image preview
+    let modalImgAddBtn = document.querySelector(".modalImgAddBtn")
+        modalImgAddBtn.addEventListener("change", (event) => {
+            modalImgAddBtnCtn.style.display = "none";
+            modalImgAddIconCtn.style.display = "none";
+            modalImgAddTxt.style.display = "none"
+        
+            let reader = new FileReader();
+            reader.onload = function(){
+                let outputImgAdd = document.querySelector('.modalAddPageImg');
+                outputImgAdd.src = reader.result;
+                outputImgAdd.id = "modalImgAdded";
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+}
+
+function modalContentAdd(works) {
+    // Add modal content
+    let token = getCookie("connectionCookie");
+    
     //Add new work feature
     let modalAddBtnId = document.getElementById("modalIntialAdd")
     modalAddBtnId.addEventListener("click", () => {
-        modalAddInterface(token)
+        document.cookie = 'AlreadyAdded =' + true + '; path=/; max-age=86400';
+        window.location.reload();
     })
 
     let modalGallery = document.querySelector(".modalBodyGallery");
@@ -531,12 +533,12 @@ function isFormOk(imageSrc, title, category, token) {
                 modalAddBtnIsReady.removeEventListener("click", modalAddBtnActionListener);
                 titleInput.removeEventListener("change", modalAddTitleListener);
                 categoryInput.removeEventListener("change", modalAddCategoryListener);
-                resetInputValues()
                 let delAll = gallery.querySelectorAll("figure");
                 delAll.forEach((figure) => {
                     figure.remove();
                 });
                 updatingGallery()
+                resetInputValues()
             }
         });
     } else {
@@ -564,6 +566,8 @@ async function addNewWork(tokenPayload, formData) {
         console.log(error)
     }
 }
+
+
 
 function resetFormState() {
     isFormChecked = false;
@@ -604,6 +608,7 @@ function resetInputValues() {
 
     modalBodyAddDiv.style.display = "none"
     modalBodyGallery.style.display = "grid"
+
 }
 
 async function removeDuplicateWorks(updatedWorks) {
@@ -767,5 +772,20 @@ document.addEventListener("DOMContentLoaded", function() {
         modalAddBtnActionListener = modalAddBtnAction.bind(null, token);
         modalAddTitleListener = modalAddBtnAction.bind(null, token);
         modalAddCategoryListener = modalAddBtnAction.bind(null, token);
+
     }
 })
+
+window.addEventListener("load", (event) => {
+    let alreadyAddedCookie = getCookie("AlreadyAdded")
+    console.log(alreadyAddedCookie)
+        if (alreadyAddedCookie) {
+            let token = getCookie("connectionCookie")
+            document.cookie = 'AlreadyAdded =; path=/; max-age=0';
+            modalAddInterface(token)
+
+            let modalContainer = document.querySelector(".modalContainer")
+            modalContainer.style.display = "flex"
+            console.log("successfully loaded page")
+        }
+    })
