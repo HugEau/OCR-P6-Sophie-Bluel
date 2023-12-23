@@ -10,7 +10,7 @@ async function loggedFetchData() {
         let works = await worksResponse.json();
         
         modalContentAdd(works)
-
+        resetFormState()
     } catch (error) {
         // Handle any errors that occur during fetching
         console.error('Error fetching data:', error);
@@ -431,14 +431,8 @@ function modalAddBtnAction(token) {
     
         // Vérifier que l'image, le titre et la catégorie sont définis avant de continuer
         if (image !== "modalImgWaitingAdd" && title !== "" && category !== "0" && !isSubmitting) {
-            let AddPayload = {
-                    "image": imageSrc,
-                    "title": title,
-                    "category": category
-                };
             isFormChecked = true; // Marquer le formulaire comme vérifié
-            isFormOk(AddPayload, token);
-            console.log(AddPayload)
+            isFormOk(imageSrc, title, category, token);
 
             let modalAddBtnIsReady = document.getElementById("modalImgAddedBtn")
             modalAddBtnIsReady.style.display = "block"
@@ -460,22 +454,28 @@ function modalAddBtnAction(token) {
 let isSubmitting = false; // Variable pour suivre l'état de soumission
 let isFormChecked = false; // Variable pour suivre si le formulaire a déjà été vérifié
 
-function isFormOk(AddPayload, token) {
+let modalAddBtnActionListener;
+let modalAddTitleListener;
+let modalAddCategoryListener;
+
+function isFormOk(imageSrc, title, category, token) {
     let titleInput = document.getElementById("title");
     let categoryInput = document.getElementById("categorySelector");
     
     // Vérifier que toutes les valeurs ne sont pas nulles
-    titleInput.addEventListener("change", modalAddBtnAction(token));
+    titleInput.addEventListener("click", modalAddBtnAction(token));
     categoryInput.addEventListener("change", modalAddBtnAction(token));
 
-    let image = AddPayload.image;
-    let title = AddPayload.title;
-    let category = AddPayload.category;
-    console.log(AddPayload)
     
     // Vérifiez les conditions spécifiques avant de changer l'ID du bouton
-    if (image !== "" && title !== "" && category !== "0" && !isSubmitting) {
-        
+    if (imageSrc !== "" && title !== "" && category !== "0" && !isSubmitting) {
+
+        let imagePayload = imageSrc;
+        let titlePayload = title;
+        let categoryPayload = category;
+
+        console.log (categoryPayload)
+
         // Toutes les valeurs sont non nulles et aucune soumission en cours, afficher le payload dans la console
 
         let modalAddWorkBtnNotOk = document.getElementById("modalAddNotOk")
@@ -485,6 +485,10 @@ function isFormOk(AddPayload, token) {
         modalAddBtnIsReady.style.display = "block"
 
         // Prémice de commande d'envoi de travaux
+    
+        titleInput.addEventListener("change", modalAddTitleListener);
+        categoryInput.addEventListener("change", modalAddCategoryListener);
+
         modalAddBtnIsReady.addEventListener("click", () => {
             try {
                 modalAddBtnIsReady.disabled = true
@@ -495,9 +499,9 @@ function isFormOk(AddPayload, token) {
                     console.log(tokenPayload);
 
                     let formData = new FormData();
-                    formData.append("image", image); // Ajouter l'image à FormData
-                    formData.append("title", title);
-                    formData.append("category", category);
+                    formData.append("image", imagePayload); // Ajouter l'image à FormData
+                    formData.append("title", titlePayload);
+                    formData.append("category", categoryPayload);
 
                     // Check if an image with a similar figcaption already exists
                     let existingWorks = gallery.querySelectorAll("figure");
@@ -523,8 +527,11 @@ function isFormOk(AddPayload, token) {
                 console.log("Error while adding work: ", error);
                 resetFormState()
             } finally {
+                // Remove the event listener to prevent memory leaks
+                modalAddBtnIsReady.removeEventListener("click", modalAddBtnActionListener);
+                titleInput.removeEventListener("change", modalAddTitleListener);
+                categoryInput.removeEventListener("change", modalAddCategoryListener);
                 resetInputValues()
-                resetFormState()
                 let delAll = gallery.querySelectorAll("figure");
                 delAll.forEach((figure) => {
                     figure.remove();
@@ -543,6 +550,7 @@ function isFormOk(AddPayload, token) {
         resetFormState()
     }
 }
+
 
 async function addNewWork(tokenPayload, formData) {
     try {
@@ -755,5 +763,9 @@ document.addEventListener("DOMContentLoaded", function() {
             })
         }
         createAdminPage(token);
+        // Attachez les écouteurs d'événements une seule fois ici
+        modalAddBtnActionListener = modalAddBtnAction.bind(null, token);
+        modalAddTitleListener = modalAddBtnAction.bind(null, token);
+        modalAddCategoryListener = modalAddBtnAction.bind(null, token);
     }
 })
